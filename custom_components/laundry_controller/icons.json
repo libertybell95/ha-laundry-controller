@@ -1,0 +1,52 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "needs_attention": {
+        "default": "mdi:basket-check",
+        "state": { "on": "mdi:basket-unfill" }
+      }
+    },
+    "button": {
+      "mark_done": { "default": "mdi:check-circle-outline" }
+    },
+    "sensor": {
+      "washer_state": {
+        "default": "mdi:washing-machine-off",
+        "state": {
+          "washing": "mdi:washing-machine",
+          "wash_done": "mdi:washing-machine-alert"
+        }
+      },
+      "dryer_state": {
+        "default": "mdi:tumble-dryer-off",
+        "state": {
+          "drying": "mdi:tumble-dryer",
+          "dry_done": "mdi:tumble-dryer-alert"
+        }
+      },
+      "status": { "default": "mdi:hanger" },
+      "loads": { "default": "mdi:counter" },
+      "last_completed": { "default": "mdi:calendar-check" },
+      "washer_cycle_duration": { "default": "mdi:timer-outline" },
+      "dryer_cycle_duration": { "default": "mdi:timer-outline" },
+      "next_reminder": { "default": "mdi:bell-clock-outline" }
+    },
+    "switch": {
+      "reminders": {
+        "default": "mdi:bell-ring",
+        "state": { "off": "mdi:bell-off" }
+      },
+      "announcements": {
+        "default": "mdi:account-voice",
+        "state": { "off": "mdi:account-voice-off" }
+      }
+    }
+  },
+  "services": {
+    "mark_done": { "service": "mdi:check-circle-outline" },
+    "hang_dry": { "service": "mdi:hanger" },
+    "reset": { "service": "mdi:restore" },
+    "set_load_count": { "service": "mdi:counter" },
+    "set_last_completed": { "service": "mdi:calendar-edit" }
+  }
+}

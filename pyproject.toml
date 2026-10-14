@@ -1,0 +1,30 @@
+[project]
+name = "ha-laundry-controller"
+version = "0.1.0"
+description = "Home Assistant custom integration that tracks washer and dryer cycles, reminders and announcements."
+license = "MIT"
+requires-python = ">=3.13"
+
+[dependency-groups]
+test = ["pytest-homeassistant-custom-component", "ruff"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PL", "BLE", "SLF", "D"]
+ignore = ["D203", "D213", "PLR0913", "PLR2004", "PLR0911", "D105", "D107"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["D", "SLF001", "PLR2004"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["custom_components.laundry_controller"]
+combine-as-imports = true

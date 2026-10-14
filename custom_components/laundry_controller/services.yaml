@@ -1,0 +1,42 @@
+mark_done:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: laundry_controller
+hang_dry:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: laundry_controller
+reset:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: laundry_controller
+set_load_count:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: laundry_controller
+    count:
+      required: true
+      example: 42
+      selector:
+        number:
+          min: 0
+          max: 1000000
+          mode: box
+set_last_completed:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: laundry_controller
+    timestamp:
+      required: true
+      selector:
+        datetime:

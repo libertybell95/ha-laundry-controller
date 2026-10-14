@@ -1,0 +1,275 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Laundry Controller",
+        "description": "Choose the binary sensors that report when each appliance is running and when each door is open.",
+        "data": {
+          "name": "Name",
+          "washer_running": "Washer running sensor",
+          "dryer_running": "Dryer running sensor",
+          "washer_door": "Washer door sensor",
+          "dryer_door": "Dryer door sensor"
+        },
+        "data_description": {
+          "name": "Used as the device name and entity ID prefix, for example sensor.laundry_status.",
+          "washer_running": "On while the washer is running.",
+          "dryer_running": "On while the dryer is running.",
+          "washer_door": "On (open) when the washer door is opened.",
+          "dryer_door": "On (open) when the dryer door is opened."
+        }
+      },
+      "features": {
+        "title": "Notifications and announcements",
+        "description": "All of these are optional and can be changed later under Configure.",
+        "data": {
+          "recipients": "Phones to notify",
+          "tts_script": "Announcement script",
+          "tts_speaker_device": "Speaker device",
+          "on_air_entity": "On-Air entity"
+        },
+        "data_description": {
+          "recipients": "Notify services such as mobile_app_my_phone. Mobile-app services get action buttons and can have notifications cleared.",
+          "tts_script": "Script run when the dryer finishes, for example script.smart_speaker_tts_with_light.",
+          "tts_speaker_device": "Passed to the script as speaker_device.",
+          "on_air_entity": "Announcements are skipped while this entity is on."
+        }
+      },
+      "reconfigure": {
+        "title": "Change sensors",
+        "data": {
+          "washer_running": "Washer running sensor",
+          "dryer_running": "Dryer running sensor",
+          "washer_door": "Washer door sensor",
+          "dryer_door": "Dryer door sensor"
+        }
+      }
+    },
+    "error": {
+      "duplicate_entities": "Each sensor must be a different entity."
+    },
+    "abort": {
+      "already_configured": "These sensors are already used by another Laundry Controller.",
+      "reconfigure_successful": "The sensors were updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Laundry Controller options",
+        "menu_options": {
+          "notifications": "Phone notifications",
+          "announcements": "Smart-speaker announcements",
+          "reminders": "Reminders",
+          "advanced": "Advanced"
+        }
+      },
+      "notifications": {
+        "title": "Phone notifications",
+        "data": {
+          "recipients": "Phones to notify",
+          "notify_washer_while_dryer_running": "Notify when the washer finishes while the dryer is running"
+        },
+        "data_description": {
+          "recipients": "Notify services such as mobile_app_my_phone. Leave empty to disable phone notifications and reminders.",
+          "notify_washer_while_dryer_running": "Off by default, matching the original Node-RED flow."
+        }
+      },
+      "announcements": {
+        "title": "Smart-speaker announcements",
+        "description": "When the dryer finishes, the script is called with message, language, voice, volume, led_color, led_brightness, max_light_duration and (if set) speaker_device.",
+        "data": {
+          "tts_script": "Announcement script",
+          "tts_speaker_device": "Speaker device",
+          "on_air_entity": "On-Air entity",
+          "on_air_unavailable": "When the On-Air entity is unavailable",
+          "tts_messages": "Messages",
+          "tts_language": "Language",
+          "tts_voice": "Voice",
+          "tts_volume": "Volume",
+          "tts_led_color": "LED color",
+          "tts_led_brightness": "LED brightness",
+          "tts_max_light_duration": "Maximum light duration"
+        },
+        "data_description": {
+          "tts_script": "Leave empty to disable announcements.",
+          "on_air_entity": "Announcements are skipped while this entity is on. The state is checked at announcement time.",
+          "tts_messages": "One message per line. A random one is spoken each time."
+        }
+      },
+      "reminders": {
+        "title": "Reminders",
+        "description": "While finished laundry is waiting, a reminder is sent every interval, starting one interval after the cycle finished. Reminders outside the allowed hours are held until the window opens. Set start and end to the same time to allow reminders all day.",
+        "data": {
+          "reminder_interval": "Reminder interval",
+          "reminder_start": "Reminders allowed from",
+          "reminder_end": "Reminders allowed until",
+          "overdue_after": "Overdue after"
+        },
+        "data_description": {
+          "overdue_after": "Reminders for laundry waiting longer than this are marked OVERDUE with high importance."
+        }
+      },
+      "advanced": {
+        "title": "Advanced",
+        "data": {
+          "reconnect_grace": "Reconnect grace period"
+        },
+        "data_description": {
+          "reconnect_grace": "After a running sensor was unknown or unavailable (including at Home Assistant start-up), its reading must stay unchanged this long before a cycle is started or finished. 0 acts immediately."
+        }
+      }
+    }
+  },
+  "selector": {
+    "on_air_unavailable": {
+      "options": {
+        "suppress": "Stay silent",
+        "announce": "Announce anyway"
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "needs_attention": {
+        "name": "Needs attention",
+        "state_attributes": {
+          "washer_waiting": { "name": "Washer waiting" },
+          "dryer_waiting": { "name": "Dryer waiting" },
+          "washer_overdue": { "name": "Washer overdue" },
+          "dryer_overdue": { "name": "Dryer overdue" }
+        }
+      }
+    },
+    "button": {
+      "mark_done": { "name": "Mark done" }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Washer state",
+        "state": {
+          "idle": "Idle",
+          "washing": "Washing",
+          "wash_done": "Wash done"
+        },
+        "state_attributes": {
+          "started_at": { "name": "Started at" },
+          "finished_at": { "name": "Finished at" }
+        }
+      },
+      "dryer_state": {
+        "name": "Dryer state",
+        "state": {
+          "idle": "Idle",
+          "drying": "Drying",
+          "dry_done": "Dry done"
+        },
+        "state_attributes": {
+          "started_at": { "name": "Started at" },
+          "finished_at": { "name": "Finished at" }
+        }
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "idle": "Idle",
+          "washing": "Washing",
+          "drying": "Drying",
+          "washing_and_drying": "Washing and drying",
+          "wash_done": "Wash done",
+          "dry_done": "Dry done",
+          "wash_and_dry_done": "Wash and dry done",
+          "wash_done_drying": "Wash done, drying",
+          "washing_dry_done": "Washing, dry done"
+        }
+      },
+      "loads": { "name": "Loads" },
+      "last_completed": { "name": "Last completed" },
+      "washer_cycle_duration": { "name": "Washer cycle duration" },
+      "dryer_cycle_duration": { "name": "Dryer cycle duration" },
+      "next_reminder": { "name": "Next reminder" }
+    },
+    "switch": {
+      "reminders": { "name": "Reminders" },
+      "announcements": { "name": "Announcements" }
+    }
+  },
+  "exceptions": {
+    "config_entry_required": {
+      "message": "Several Laundry Controllers are set up (or none is loaded). Choose one with config_entry_id."
+    },
+    "config_entry_not_found": {
+      "message": "No loaded Laundry Controller with config entry ID {entry_id}."
+    }
+  },
+  "issues": {
+    "missing_notify_service": {
+      "title": "Laundry notification service missing",
+      "description": "{name} tried to send a notification with {service}, but that service does not exist. Reinstall the companion app or update the recipients under Settings > Devices & services > Laundry Controller > Configure > Phone notifications."
+    },
+    "missing_tts_script": {
+      "title": "Laundry announcement script missing",
+      "description": "{name} tried to run {script} to announce the dryer finishing, but the script does not exist. Create it, or change the script under Configure > Smart-speaker announcements."
+    }
+  },
+  "services": {
+    "mark_done": {
+      "name": "Mark laundry done",
+      "description": "Acknowledges all finished laundry (washer and dryer). Running appliances are not touched.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Laundry Controller",
+          "description": "Instance to act on. Optional when only one is set up."
+        }
+      }
+    },
+    "hang_dry": {
+      "name": "Hang dry",
+      "description": "Acknowledges a finished washer load that will be hung to dry. Does nothing if the washer is not finished.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Laundry Controller",
+          "description": "Instance to act on. Optional when only one is set up."
+        }
+      }
+    },
+    "reset": {
+      "name": "Reset laundry state",
+      "description": "Discards finished states and re-syncs each appliance with its running sensor, without counting loads or sending notifications.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Laundry Controller",
+          "description": "Instance to act on. Optional when only one is set up."
+        }
+      }
+    },
+    "set_load_count": {
+      "name": "Set load count",
+      "description": "Sets the laundry load counter, for example to import the count from counter.laundry_loads.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Laundry Controller",
+          "description": "Instance to act on. Optional when only one is set up."
+        },
+        "count": {
+          "name": "Count",
+          "description": "New load count."
+        }
+      }
+    },
+    "set_last_completed": {
+      "name": "Set last completed",
+      "description": "Sets the last completed laundry timestamp, for example to import input_datetime.laundry_last_done.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Laundry Controller",
+          "description": "Instance to act on. Optional when only one is set up."
+        },
+        "timestamp": {
+          "name": "Timestamp",
+          "description": "When laundry was last completed."
+        }
+      }
+    }
+  }
+}

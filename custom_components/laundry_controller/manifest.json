@@ -1,0 +1,15 @@
+{
+  "domain": "laundry_controller",
+  "name": "Laundry Controller",
+  "codeowners": [
+    "@libertybell95"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/libertybell95/ha-laundry-controller",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/libertybell95/ha-laundry-controller/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
