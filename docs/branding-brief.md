@@ -1,8 +1,12 @@
 # Branding brief
 
-Laundry Controller works without any images; Home Assistant shows a generic
-placeholder until brand images exist. This brief lists the assets worth making
-and contains a prompt to paste into ChatGPT (or another image generator).
+> **Status:** done in v0.1.1. The icons and logos are in
+> `custom_components/laundry_controller/brand/`, and the banner and social
+> preview are in `docs/images/`. This brief is kept for regenerating or
+> extending the set.
+
+This brief lists the brand assets for Laundry Controller and contains a prompt
+to paste into ChatGPT (or another image generator).
 
 ## Assets and where they go
 

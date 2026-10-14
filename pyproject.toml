@@ -1,6 +1,6 @@
 [project]
 name = "ha-laundry-controller"
-version = "0.1.0"
+version = "0.1.1"
 description = "Home Assistant custom integration that tracks washer and dryer cycles, reminders and announcements."
 license = "MIT"
 requires-python = ">=3.13"

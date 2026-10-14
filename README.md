@@ -1,5 +1,7 @@
 # Laundry Controller for Home Assistant
 
+![Laundry Controller](docs/images/banner.png)
+
 [![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories)
 [![Validate](https://github.com/libertybell95/ha-laundry-controller/actions/workflows/validate.yml/badge.svg)](https://github.com/libertybell95/ha-laundry-controller/actions/workflows/validate.yml)
 [![Tests](https://github.com/libertybell95/ha-laundry-controller/actions/workflows/tests.yml/badge.svg)](https://github.com/libertybell95/ha-laundry-controller/actions/workflows/tests.yml)
