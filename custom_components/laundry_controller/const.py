@@ -22,6 +22,9 @@ SENSOR_KEYS: Final = (
 
 # Options: notifications
 CONF_RECIPIENTS: Final = "recipients"
+CONF_NFC_TAG: Final = "nfc_tag"
+CONF_NFC_DURATION: Final = "nfc_duration"
+CONF_NFC_DEVICES: Final = "nfc_devices"
 CONF_NOTIFY_WASHER_WHILE_DRYER_RUNNING: Final = "notify_washer_while_dryer_running"
 
 # Options: announcements
@@ -64,6 +67,7 @@ DEFAULT_TTS_MESSAGES: Final = (
 
 DEFAULT_OPTIONS: Final[dict] = {
     CONF_RECIPIENTS: [],
+    CONF_NFC_DURATION: 12,
     CONF_NOTIFY_WASHER_WHILE_DRYER_RUNNING: False,
     CONF_TTS_MESSAGES: "\n".join(DEFAULT_TTS_MESSAGES),
     CONF_TTS_LANGUAGE: "en-GB",
