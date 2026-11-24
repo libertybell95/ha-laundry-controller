@@ -1,6 +1,10 @@
 name: Release
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - custom_components/laundry_controller/manifest.json
   release:
     types: [published]
 
@@ -8,7 +12,29 @@ permissions:
   contents: write
 
 jobs:
+  publish:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build integration release archive
+        run: |
+          cd custom_components/laundry_controller
+          zip -r ../../laundry_controller.zip . -x '__pycache__/*'
+      - name: Publish versioned release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(python3 -c "import json; print(json.load(open('custom_components/laundry_controller/manifest.json'))['version'])")
+          tag="v${version}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; not overwriting"
+            exit 0
+          fi
+          gh release create "$tag" laundry_controller.zip --target "$GITHUB_SHA" --title "Laundry Controller $tag" --generate-notes --latest
+
   release:
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
