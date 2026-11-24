@@ -44,6 +44,24 @@ are kept.
 | Subscription duration | 12 hours | Allowed range 1–168 hours; a repeat scan renews the full period. |
 | Notify when the washer finishes while the dryer is running | off | The Node-RED flow sent nothing in this case. |
 
+### Optional recipient routing
+
+In **Configure → Phone notifications → Recipient routing scripts**, enter an
+object mapping selected notify services to existing script entity IDs. Example:
+
+```yaml
+mobile_app_my_phone: script.my_notification_router
+```
+
+The script receives `title`, `message`, and `phone_data` (the original
+notification tag, actions and importance). Only recipients eligible under
+the existing NFC rules are routed. Missing or failing scripts fall back to
+the original notify service. NFC scan confirmations and clear commands
+always remain direct. Unmapped recipients are unchanged. Independent dryer
+TTS remains configurable; disable it only if the routing script replaces
+the same speaker delivery. Audio-only routing does not display phone action
+buttons unless the script also sends the phone payload.
+
 ### NFC opt-in subscriptions
 
 Choose the tag in **Configure → Phone notifications → NFC subscription tag**.

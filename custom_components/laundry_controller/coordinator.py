@@ -35,6 +35,7 @@ from .const import (
     CONF_NOTIFY_WASHER_WHILE_DRYER_RUNNING,
     CONF_OVERDUE_AFTER,
     CONF_RECIPIENTS,
+    CONF_RECIPIENT_ROUTES,
     CONF_RECONNECT_GRACE,
     CONF_REMINDER_END,
     CONF_REMINDER_INTERVAL,
@@ -110,6 +111,7 @@ class LaundryController:
             self.options[CONF_RECIPIENTS],
             nfc_tag=self.options.get(CONF_NFC_TAG),
             nfc_devices=self.options.get(CONF_NFC_DEVICES, {}),
+            recipient_routes=self.options.get(CONF_RECIPIENT_ROUTES, {}),
         )
         self.announcer = Announcer(hass, entry.entry_id, entry.title, self.options)
         self.next_reminder: datetime | None = None

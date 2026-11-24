@@ -150,6 +150,7 @@ class Notifier:
         *,
         nfc_tag: str | None = None,
         nfc_devices: dict[str, str] | None = None,
+        recipient_routes: dict[str, str] | None = None,
     ) -> None:
         """Initialize."""
         self.hass = hass
@@ -160,6 +161,10 @@ class Notifier:
         self.nfc_tag = nfc_tag
         self.nfc_devices = {
             k.removeprefix("notify."): v for k, v in (nfc_devices or {}).items()
+        }
+        self.recipient_routes = {
+            key.removeprefix("notify."): value
+            for key, value in (recipient_routes or {}).items()
         }
         self.subscriptions: dict[str, datetime] = {}
 
@@ -196,10 +201,35 @@ class Notifier:
         """Send a notification only to eligible recipients."""
         await asyncio.gather(
             *(
-                self._async_call(service, self._payload(service, msg))
+                self._async_route(service, self._payload(service, msg))
                 for service in self.eligible_recipients()
             )
         )
+
+    async def _async_route(self, service: str, payload: dict[str, Any]) -> None:
+        """Route eligible messages only; clear and scan confirmation stay direct."""
+        script = self.recipient_routes.get(service)
+        if script and script.startswith("script."):
+            name = script.removeprefix("script.")
+            if self.hass.services.has_service("script", name):
+                try:
+                    async with asyncio.timeout(CALL_TIMEOUT):
+                        await self.hass.services.async_call(
+                            "script",
+                            name,
+                            {
+                                "title": payload["title"],
+                                "message": payload["message"],
+                                "phone_data": payload.get("data", {}),
+                            },
+                            blocking=True,
+                        )
+                    return
+                except Exception:
+                    _LOGGER.exception("Recipient routing failed; falling back to notify")
+            else:
+                _LOGGER.warning("Recipient routing script unavailable; falling back to notify")
+        await self._async_call(service, payload)
 
     async def async_clear(self, tag: str) -> None:
         """Clear a notification category on every mobile-app recipient."""

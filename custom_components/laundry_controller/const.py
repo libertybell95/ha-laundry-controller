@@ -22,6 +22,7 @@ SENSOR_KEYS: Final = (
 
 # Options: notifications
 CONF_RECIPIENTS: Final = "recipients"
+CONF_RECIPIENT_ROUTES: Final = "recipient_routes"
 CONF_NFC_TAG: Final = "nfc_tag"
 CONF_NFC_DURATION: Final = "nfc_duration"
 CONF_NFC_DEVICES: Final = "nfc_devices"

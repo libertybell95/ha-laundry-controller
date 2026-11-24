@@ -7,10 +7,10 @@ from typing import Any
 from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.core import HomeAssistant
 
-from .const import CONF_RECIPIENTS, CONF_TTS_SPEAKER_DEVICE
+from .const import CONF_RECIPIENTS, CONF_RECIPIENT_ROUTES, CONF_TTS_SPEAKER_DEVICE
 from .coordinator import LaundryConfigEntry
 
-TO_REDACT = {CONF_RECIPIENTS, CONF_TTS_SPEAKER_DEVICE}
+TO_REDACT = {CONF_RECIPIENTS, CONF_RECIPIENT_ROUTES, CONF_TTS_SPEAKER_DEVICE}
 
 
 async def async_get_config_entry_diagnostics(

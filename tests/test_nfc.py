@@ -105,3 +105,45 @@ async def _washer_finishes(hass: HomeAssistant) -> None:
     await settle(hass)
     hass.states.async_set(WASHER, "off")
     await settle(hass)
+
+
+async def test_recipient_routing_respects_nfc_and_preserves_other_phones(
+    hass: HomeAssistant, notify_calls
+) -> None:
+    """Route eligible mapped recipients; leave other phones untouched."""
+    from pytest_homeassistant_custom_component.common import async_mock_service
+    from custom_components.laundry_controller.const import (
+        CONF_RECIPIENTS,
+        CONF_RECIPIENT_ROUTES,
+    )
+    from custom_components.laundry_controller.notifications import PhoneMessage
+
+    other = "mobile_app_other"
+    other_calls = async_mock_service(hass, "notify", other)
+    routed = async_mock_service(hass, "script", "personal_router")
+    set_all_off(hass)
+    hass.states.async_set(TAG_ENTITY, "unknown", {"tag_id": TAG_ID})
+    entry = make_entry(**{
+        CONF_RECIPIENTS: [PHONE, other],
+        CONF_NFC_TAG: TAG_ENTITY,
+        CONF_NFC_DEVICES: {PHONE: DEVICE_ID, other: "other-device"},
+        CONF_RECIPIENT_ROUTES: {PHONE: "script.personal_router"},
+    })
+    await setup_entry(hass, entry)
+    notifier = entry.runtime_data.notifier
+    msg = PhoneMessage("Laundry", "Test", "test-tag", (("DONE", "Done"),))
+    await notifier.async_send(msg)
+    assert not routed and not other_calls
+    notifier.subscriptions[DEVICE_ID] = dt_util.utcnow() + timedelta(hours=1)
+    notifier.subscriptions["other-device"] = dt_util.utcnow() + timedelta(hours=1)
+    await notifier.async_send(msg)
+    assert routed[-1].data["phone_data"]["tag"] == "test-tag"
+    assert routed[-1].data["phone_data"]["actions"][0]["action"] == "DONE"
+    assert other_calls[-1].data["message"] == "Test"
+    await notifier.async_clear("test-tag")
+    assert notify_calls[-1].data["message"] == "clear_notification"
+    assert other_calls[-1].data["message"] == "clear_notification"
+    assert len(routed) == 1
+    hass.services.async_remove("script", "personal_router")
+    await notifier.async_send(msg)
+    assert notify_calls[-1].data["message"] == "Test"

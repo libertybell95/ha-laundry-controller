@@ -25,6 +25,7 @@ from .const import (
     CONF_ON_AIR_UNAVAILABLE,
     CONF_OVERDUE_AFTER,
     CONF_RECIPIENTS,
+    CONF_RECIPIENT_ROUTES,
     CONF_RECONNECT_GRACE,
     CONF_REMINDER_END,
     CONF_REMINDER_INTERVAL,
@@ -89,6 +90,7 @@ def _notification_schema(hass: HomeAssistant, current: list[str]) -> vol.Schema:
     return vol.Schema(
         {
             vol.Optional(CONF_RECIPIENTS): _recipient_selector(hass, current),
+            vol.Optional(CONF_RECIPIENT_ROUTES): selector.ObjectSelector(),
             vol.Optional(CONF_NFC_TAG): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="tag")
             ),
@@ -191,7 +193,9 @@ ADVANCED_SCHEMA = vol.Schema(
 
 # Keys that are optional in a step and must be removed when left empty.
 OPTIONAL_KEYS = {
-    "notifications": (CONF_RECIPIENTS, CONF_NFC_TAG, CONF_NFC_DEVICES),
+    "notifications": (
+        CONF_RECIPIENTS, CONF_NFC_TAG, CONF_NFC_DEVICES, CONF_RECIPIENT_ROUTES,
+    ),
     "announcements": (CONF_TTS_SCRIPT, CONF_TTS_SPEAKER_DEVICE, CONF_ON_AIR_ENTITY),
 }
 INT_KEYS = (
@@ -333,6 +337,28 @@ class LaundryOptionsFlow(OptionsFlow):
             recipients = [
                 r.removeprefix("notify.") for r in user_input.get(CONF_RECIPIENTS, [])
             ]
+            routes = user_input.get(CONF_RECIPIENT_ROUTES, {}) or {}
+            if not isinstance(routes, dict) or any(
+                not isinstance(key, str)
+                or key.removeprefix("notify.") not in recipients
+                or not isinstance(value, str)
+                or not value.startswith("script.")
+                or not self.hass.services.has_service(
+                    "script", value.removeprefix("script.")
+                )
+                for key, value in routes.items()
+            ):
+                return self.async_show_form(
+                    step_id="notifications",
+                    data_schema=self.add_suggested_values_to_schema(
+                        _notification_schema(self.hass, self._options[CONF_RECIPIENTS]),
+                        user_input,
+                    ),
+                    errors={"base": "invalid_recipient_routes"},
+                )
+            user_input[CONF_RECIPIENT_ROUTES] = {
+                key.removeprefix("notify."): value for key, value in routes.items()
+            }
             nfc_tag = user_input.get(CONF_NFC_TAG)
             if nfc_tag and any(not r.startswith("mobile_app_") for r in recipients):
                 schema = _notification_schema(self.hass, self._options[CONF_RECIPIENTS])

@@ -70,13 +70,15 @@
           "recipients": "Phones to notify",
           "notify_washer_while_dryer_running": "Notify when the washer finishes while the dryer is running",
           "nfc_tag": "NFC subscription tag (optional)",
-          "nfc_duration": "Subscription duration (hours)"
+          "nfc_duration": "Subscription duration (hours)",
+          "recipient_routes": "Recipient routing scripts (optional)"
         },
         "data_description": {
           "recipients": "Notify services such as mobile_app_my_phone. Leave empty to disable phone notifications and reminders.",
           "notify_washer_while_dryer_running": "Off by default, matching the original Node-RED flow.",
           "nfc_tag": "Choose a Home Assistant NFC tag to require scanning for phone alerts. Leave empty to always notify every selected phone.",
-          "nfc_duration": "Scanning the tag subscribes the scanning Companion App device for this many hours. A repeat scan renews the duration."
+          "nfc_duration": "Scanning the tag subscribes the scanning Companion App device for this many hours. A repeat scan renews the duration.",
+          "recipient_routes": "Map a selected notify service to a script entity ID, e.g. {mobile_app_my_phone: script.my_router}. Scan confirmations and clear commands remain direct."
         }
       },
       "announcements": {
@@ -130,7 +132,8 @@
       }
     },
     "error": {
-      "nfc_requires_mobile_app": "NFC subscriptions require mobile-app notify services. Remove non-mobile notification recipients or clear the NFC tag."
+      "nfc_requires_mobile_app": "NFC subscriptions require mobile-app notify services. Remove non-mobile notification recipients or clear the NFC tag.",
+      "invalid_recipient_routes": "Use a mapping of selected notify services to existing script entity IDs."
     }
   },
   "selector": {

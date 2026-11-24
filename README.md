@@ -137,6 +137,8 @@ Mobile-app notify services get buttons, tags and are cleared automatically.
 Any other notify service gets plain title + message. Buttons only act on the
 setup that sent them.
 
+Optional per-recipient routing scripts can replace cycle and reminder delivery while preserving NFC eligibility and direct notification cleanup. See [configuration](docs/configuration.md#optional-recipient-routing).
+
 ### NFC subscriptions (optional)
 
 In **Configure → Phone notifications**, optionally select a registered Home
