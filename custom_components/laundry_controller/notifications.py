@@ -12,7 +12,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import dt as dt_util
-
 import voluptuous as vol
 
 from .const import ACTION_HANG_DRY, ACTION_MARK_DONE, DOMAIN
@@ -148,6 +147,7 @@ class Notifier:
         entry_id: str,
         entry_title: str,
         recipients: list[str],
+        *,
         nfc_tag: str | None = None,
         nfc_devices: dict[str, str] | None = None,
     ) -> None:
@@ -158,7 +158,9 @@ class Notifier:
         self.recipients = [r.removeprefix(f"{NOTIFY_DOMAIN}.") for r in recipients]
         self.last_error: str | None = None
         self.nfc_tag = nfc_tag
-        self.nfc_devices = {k.removeprefix("notify."): v for k, v in (nfc_devices or {}).items()}
+        self.nfc_devices = {
+            k.removeprefix("notify."): v for k, v in (nfc_devices or {}).items()
+        }
         self.subscriptions: dict[str, datetime] = {}
 
     def eligible_recipients(self) -> list[str]:
@@ -179,7 +181,10 @@ class Notifier:
             if self.nfc_devices.get(service) == device_id:
                 await self._async_call(service, {
                     "title": "Laundry alerts enabled",
-                    "message": f"Laundry alerts enabled for {hours} hours. Scan again to extend.",
+                    "message": (
+                        f"Laundry alerts enabled for {hours} hours. "
+                        "Scan again to extend."
+                    ),
                 })
                 return
 
