@@ -1,0 +1,27 @@
+name: Format NFC feature (temporary)
+on:
+  push:
+    branches: [feature/nfc-opt-in-subscriptions]
+    paths: [.github/workflows/format-nfc.yml]
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/nfc-opt-in-subscriptions
+          persist-credentials: true
+      - uses: astral-sh/ruff-action@v3
+        with:
+          args: format custom_components/laundry_controller/config_flow.py custom_components/laundry_controller/coordinator.py custom_components/laundry_controller/notifications.py tests/test_nfc.py
+      - name: Commit formatting only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add custom_components/laundry_controller/config_flow.py custom_components/laundry_controller/coordinator.py custom_components/laundry_controller/notifications.py tests/test_nfc.py
+          if ! git diff --cached --quiet; then
+            git commit -m "style: apply Ruff formatting"
+            git push origin HEAD:feature/nfc-opt-in-subscriptions
+          fi
