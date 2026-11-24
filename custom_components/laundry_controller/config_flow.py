@@ -17,14 +17,14 @@ from homeassistant.helpers import selector
 import voluptuous as vol
 
 from .const import (
+    CONF_NFC_DEVICES,
+    CONF_NFC_DURATION,
+    CONF_NFC_TAG,
     CONF_NOTIFY_WASHER_WHILE_DRYER_RUNNING,
     CONF_ON_AIR_ENTITY,
     CONF_ON_AIR_UNAVAILABLE,
     CONF_OVERDUE_AFTER,
     CONF_RECIPIENTS,
-    CONF_NFC_TAG,
-    CONF_NFC_DURATION,
-    CONF_NFC_DEVICES,
     CONF_RECONNECT_GRACE,
     CONF_REMINDER_END,
     CONF_REMINDER_INTERVAL,
@@ -327,7 +327,9 @@ class LaundryOptionsFlow(OptionsFlow):
     ) -> ConfigFlowResult:
         """Phone notification options."""
         if user_input is not None:
-            recipients = [r.removeprefix("notify.") for r in user_input.get(CONF_RECIPIENTS, [])]
+            recipients = [
+                r.removeprefix("notify.") for r in user_input.get(CONF_RECIPIENTS, [])
+            ]
             nfc_tag = user_input.get(CONF_NFC_TAG)
             if nfc_tag and any(not r.startswith("mobile_app_") for r in recipients):
                 schema = _notification_schema(self.hass, self._options[CONF_RECIPIENTS])
