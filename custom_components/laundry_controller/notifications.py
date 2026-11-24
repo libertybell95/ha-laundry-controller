@@ -13,7 +13,6 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_NFC_TAG
 import voluptuous as vol
 
 from .const import ACTION_HANG_DRY, ACTION_MARK_DONE, DOMAIN
