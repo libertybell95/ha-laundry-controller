@@ -92,7 +92,7 @@ def _notification_schema(hass: HomeAssistant, current: list[str]) -> vol.Schema:
             vol.Optional(CONF_NFC_TAG): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="tag")
             ),
-            vol.Required(CONF_NFC_DURATION): selector.NumberSelector(
+            vol.Optional(CONF_NFC_DURATION, default=12): selector.NumberSelector(
                 selector.NumberSelectorConfig(
                     min=1,
                     max=168,
