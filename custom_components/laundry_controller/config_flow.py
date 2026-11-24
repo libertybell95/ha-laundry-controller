@@ -22,6 +22,9 @@ from .const import (
     CONF_ON_AIR_UNAVAILABLE,
     CONF_OVERDUE_AFTER,
     CONF_RECIPIENTS,
+    CONF_NFC_TAG,
+    CONF_NFC_DURATION,
+    CONF_NFC_DEVICES,
     CONF_RECONNECT_GRACE,
     CONF_REMINDER_END,
     CONF_REMINDER_INTERVAL,
@@ -86,6 +89,15 @@ def _notification_schema(hass: HomeAssistant, current: list[str]) -> vol.Schema:
     return vol.Schema(
         {
             vol.Optional(CONF_RECIPIENTS): _recipient_selector(hass, current),
+            vol.Optional(CONF_NFC_TAG): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="tag")
+            ),
+            vol.Required(CONF_NFC_DURATION): selector.NumberSelector(
+                selector.NumberSelectorConfig(
+                    min=1, max=168, step=1, unit_of_measurement="h",
+                    mode=selector.NumberSelectorMode.BOX,
+                )
+            ),
             vol.Optional(
                 CONF_NOTIFY_WASHER_WHILE_DRYER_RUNNING
             ): selector.BooleanSelector(),
@@ -176,11 +188,12 @@ ADVANCED_SCHEMA = vol.Schema(
 
 # Keys that are optional in a step and must be removed when left empty.
 OPTIONAL_KEYS = {
-    "notifications": (CONF_RECIPIENTS,),
+    "notifications": (CONF_RECIPIENTS, CONF_NFC_TAG, CONF_NFC_DEVICES),
     "announcements": (CONF_TTS_SCRIPT, CONF_TTS_SPEAKER_DEVICE, CONF_ON_AIR_ENTITY),
 }
 INT_KEYS = (
     CONF_REMINDER_INTERVAL,
+    CONF_NFC_DURATION,
     CONF_OVERDUE_AFTER,
     CONF_RECONNECT_GRACE,
     CONF_TTS_LED_BRIGHTNESS,
@@ -314,9 +327,46 @@ class LaundryOptionsFlow(OptionsFlow):
     ) -> ConfigFlowResult:
         """Phone notification options."""
         if user_input is not None:
+            recipients = [r.removeprefix("notify.") for r in user_input.get(CONF_RECIPIENTS, [])]
+            nfc_tag = user_input.get(CONF_NFC_TAG)
+            if nfc_tag and any(not r.startswith("mobile_app_") for r in recipients):
+                schema = _notification_schema(self.hass, self._options[CONF_RECIPIENTS])
+                return self.async_show_form(
+                    step_id="notifications",
+                    data_schema=self.add_suggested_values_to_schema(schema, user_input),
+                    errors={"base": "nfc_requires_mobile_app"},
+                )
+            if nfc_tag and recipients:
+                self._pending_notifications = user_input
+                return await self.async_step_nfc_devices()
             return self._save("notifications", user_input)
         schema = _notification_schema(self.hass, self._options[CONF_RECIPIENTS])
         return self._form("notifications", schema)
+
+    async def async_step_nfc_devices(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Associate each notify service with its Companion App scanning device."""
+        pending = self._pending_notifications
+        recipients = [r.removeprefix("notify.") for r in pending[CONF_RECIPIENTS]]
+        if user_input is not None:
+            self._pending_notifications = {}
+            return self._save(
+                "notifications", {**pending, CONF_NFC_DEVICES: user_input}
+            )
+        current = self._options.get(CONF_NFC_DEVICES, {})
+        schema = vol.Schema(
+            {
+                vol.Required(service): selector.DeviceSelector(
+                    selector.DeviceSelectorConfig(integration="mobile_app")
+                )
+                for service in recipients
+            }
+        )
+        return self.async_show_form(
+            step_id="nfc_devices",
+            data_schema=self.add_suggested_values_to_schema(schema, current),
+        )
 
     async def async_step_announcements(
         self, user_input: dict[str, Any] | None = None
