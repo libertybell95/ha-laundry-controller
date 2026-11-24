@@ -18,6 +18,7 @@ restarts and protection against sensor drop-outs.
 
 * Washer: **Idle → Washing → Wash done**; dryer: **Idle → Drying → Dry done**.
 * Load counter, cycle durations, last-completed time.
+* Optional **NFC opt-in** for selected mobile-app phones (configurable tag and subscription duration); no NFC tag keeps legacy notify-all behavior.
 * Phone notifications with **Hang Dry (Done)** and **Mark as Done** buttons,
   auto-cleared when the laundry is dealt with.
 * Reminders every 15 minutes inside configurable hours; **OVERDUE** after 60 minutes.
@@ -135,6 +136,19 @@ Two categories, each with a stable tag so a new message replaces the old one:
 Mobile-app notify services get buttons, tags and are cleared automatically.
 Any other notify service gets plain title + message. Buttons only act on the
 setup that sent them.
+
+### NFC subscriptions (optional)
+
+In **Configure → Phone notifications**, optionally select a registered Home
+Assistant NFC tag and a subscription duration (default 12 hours). A second
+step maps each selected mobile-app notification service to the device that
+scans the tag. Scans subscribe that device; repeat scans renew it. Each device
+has its own expiration, preserved across Home Assistant restarts. No
+per-person configuration is embedded in this repository.
+
+**No tag selected means every selected phone receives notifications**, just
+as on existing installations. For details, including migration from older NFC
+automations, see [configuration](docs/configuration.md#nfc-opt-in-subscriptions).
 
 ### Reminders
 
