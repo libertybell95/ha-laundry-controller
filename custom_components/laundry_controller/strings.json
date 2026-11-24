@@ -68,11 +68,15 @@
         "title": "Phone notifications",
         "data": {
           "recipients": "Phones to notify",
-          "notify_washer_while_dryer_running": "Notify when the washer finishes while the dryer is running"
+          "notify_washer_while_dryer_running": "Notify when the washer finishes while the dryer is running",
+          "nfc_tag": "NFC subscription tag (optional)",
+          "nfc_duration": "Subscription duration (hours)"
         },
         "data_description": {
           "recipients": "Notify services such as mobile_app_my_phone. Leave empty to disable phone notifications and reminders.",
-          "notify_washer_while_dryer_running": "Off by default, matching the original Node-RED flow."
+          "notify_washer_while_dryer_running": "Off by default, matching the original Node-RED flow.",
+          "nfc_tag": "Choose a Home Assistant NFC tag to require scanning for phone alerts. Leave empty to always notify every selected phone.",
+          "nfc_duration": "Scanning the tag subscribes the scanning Companion App device for this many hours. A repeat scan renews the duration."
         }
       },
       "announcements": {
@@ -118,7 +122,15 @@
         "data_description": {
           "reconnect_grace": "After a running sensor was unknown or unavailable (including at Home Assistant start-up), its reading must stay unchanged this long before a cycle is started or finished. 0 acts immediately."
         }
+      },
+      "nfc_devices": {
+        "title": "Match phones to scanning devices",
+        "description": "Associate each selected mobile-app notify service with its Home Assistant Companion App device. The device is used to recognize who scanned the NFC tag.",
+        "data": {}
       }
+    },
+    "error": {
+      "nfc_requires_mobile_app": "NFC subscriptions require mobile-app notify services. Remove non-mobile notification recipients or clear the NFC tag."
     }
   },
   "selector": {
@@ -134,15 +146,25 @@
       "needs_attention": {
         "name": "Needs attention",
         "state_attributes": {
-          "washer_waiting": { "name": "Washer waiting" },
-          "dryer_waiting": { "name": "Dryer waiting" },
-          "washer_overdue": { "name": "Washer overdue" },
-          "dryer_overdue": { "name": "Dryer overdue" }
+          "washer_waiting": {
+            "name": "Washer waiting"
+          },
+          "dryer_waiting": {
+            "name": "Dryer waiting"
+          },
+          "washer_overdue": {
+            "name": "Washer overdue"
+          },
+          "dryer_overdue": {
+            "name": "Dryer overdue"
+          }
         }
       }
     },
     "button": {
-      "mark_done": { "name": "Mark done" }
+      "mark_done": {
+        "name": "Mark done"
+      }
     },
     "sensor": {
       "washer_state": {
@@ -153,8 +175,12 @@
           "wash_done": "Wash done"
         },
         "state_attributes": {
-          "started_at": { "name": "Started at" },
-          "finished_at": { "name": "Finished at" }
+          "started_at": {
+            "name": "Started at"
+          },
+          "finished_at": {
+            "name": "Finished at"
+          }
         }
       },
       "dryer_state": {
@@ -165,8 +191,12 @@
           "dry_done": "Dry done"
         },
         "state_attributes": {
-          "started_at": { "name": "Started at" },
-          "finished_at": { "name": "Finished at" }
+          "started_at": {
+            "name": "Started at"
+          },
+          "finished_at": {
+            "name": "Finished at"
+          }
         }
       },
       "status": {
@@ -183,15 +213,29 @@
           "washing_dry_done": "Washing, dry done"
         }
       },
-      "loads": { "name": "Loads" },
-      "last_completed": { "name": "Last completed" },
-      "washer_cycle_duration": { "name": "Washer cycle duration" },
-      "dryer_cycle_duration": { "name": "Dryer cycle duration" },
-      "next_reminder": { "name": "Next reminder" }
+      "loads": {
+        "name": "Loads"
+      },
+      "last_completed": {
+        "name": "Last completed"
+      },
+      "washer_cycle_duration": {
+        "name": "Washer cycle duration"
+      },
+      "dryer_cycle_duration": {
+        "name": "Dryer cycle duration"
+      },
+      "next_reminder": {
+        "name": "Next reminder"
+      }
     },
     "switch": {
-      "reminders": { "name": "Reminders" },
-      "announcements": { "name": "Announcements" }
+      "reminders": {
+        "name": "Reminders"
+      },
+      "announcements": {
+        "name": "Announcements"
+      }
     }
   },
   "exceptions": {
