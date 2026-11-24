@@ -40,7 +40,44 @@ are kept.
 | Option | Default | Description |
 | --- | --- | --- |
 | Phones to notify | none | Notify services, e.g. `mobile_app_pixel_bell`. The list shows existing `notify.*` services; you can also type one. Mobile-app services get action buttons, tags, importance and can be cleared. Other notify services get the title and message only. Empty = no notifications and no reminders. |
+| NFC subscription tag | none | Choose an existing Home Assistant tag. If empty, **every selected phone always receives alerts** (legacy behavior). With a tag set, phone alerts are opt-in. |
+| Subscription duration | 12 hours | Allowed range 1–168 hours; a repeat scan renews the full period. |
 | Notify when the washer finishes while the dryer is running | off | The Node-RED flow sent nothing in this case. |
+
+### NFC opt-in subscriptions
+
+Choose the tag in **Configure → Phone notifications → NFC subscription tag**.
+The tag must already be registered in Home Assistant (Settings → Tags).
+The NFC setting is **optional**. With no tag selected, notifications continue
+to reach every selected notify service regardless of scanning, including when
+upgrading an older installation.
+
+When a tag is selected, select *mobile_app* notify services only. A second
+form, **Match phones to scanning devices**, appears after saving the notification
+options. Map each selected notify service to the corresponding Home Assistant
+Companion App device. This explicit mapping is configuration in your Home
+Assistant instance, not hardcoded names or IDs in the integration's source.
+
+When a mapped phone scans the selected tag using the Home Assistant Companion
+App, it receives a confirmation and enables cycle-finished and reminder alerts
+for the configured duration (default 12 hours). Repeated scans renew that
+phone's expiration. Unmapped phones, unselected phones, and other tags do
+nothing. Scanning from a device is not ownership of a laundry load; multiple
+phones can be subscribed simultaneously. Notifications cease automatically
+after expiration; TTS announcements are independent.
+
+Subscription expiration times are saved alongside the integration's other
+state and survive Home Assistant restarts. When a laundry notification is
+cleared after completion, clear requests still go to *all* configured mobile-app
+recipients, even expired ones, so stale notifications can be removed. Removing
+the configured NFC tag returns immediately to the legacy notify-all mode.
+
+**Migration from existing tag-scanned automations:** after configuring the
+tag and device mappings in this integration, disable any prior NFC subscription
+automation; the integration will now handle scans and confirmation messages.
+Existing external input_datetime subscription helpers are not imported into
+this integration. Each phone should scan the selected tag again once after
+the change. Old helpers can be removed after verification.
 
 ### Smart-speaker announcements
 
