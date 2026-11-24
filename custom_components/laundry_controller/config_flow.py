@@ -94,7 +94,10 @@ def _notification_schema(hass: HomeAssistant, current: list[str]) -> vol.Schema:
             ),
             vol.Required(CONF_NFC_DURATION): selector.NumberSelector(
                 selector.NumberSelectorConfig(
-                    min=1, max=168, step=1, unit_of_measurement="h",
+                    min=1,
+                    max=168,
+                    step=1,
+                    unit_of_measurement="h",
                     mode=selector.NumberSelectorMode.BOX,
                 )
             ),

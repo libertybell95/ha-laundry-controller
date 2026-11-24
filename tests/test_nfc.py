@@ -30,8 +30,7 @@ async def test_no_tag_keeps_legacy_notify_all(
     await setup_entry(hass, entry)
     await _washer_finishes(hass)
     assert any(
-        c.data.get("message", "").startswith("Washer finished")
-        for c in notify_calls
+        c.data.get("message", "").startswith("Washer finished") for c in notify_calls
     )
 
 
@@ -41,11 +40,13 @@ async def test_tag_requires_scan_and_expires(
     """Only mapped phones with a live subscription receive laundry alerts."""
     set_all_off(hass)
     hass.states.async_set(TAG_ENTITY, "unknown", {"tag_id": TAG_ID})
-    entry = make_entry(**{
-        CONF_NFC_TAG: TAG_ENTITY,
-        CONF_NFC_DURATION: 12,
-        CONF_NFC_DEVICES: {PHONE: DEVICE_ID},
-    })
+    entry = make_entry(
+        **{
+            CONF_NFC_TAG: TAG_ENTITY,
+            CONF_NFC_DURATION: 12,
+            CONF_NFC_DEVICES: {PHONE: DEVICE_ID},
+        }
+    )
     await setup_entry(hass, entry)
     notifier = entry.runtime_data.notifier
     assert notifier.eligible_recipients() == []
@@ -84,10 +85,12 @@ async def test_subscriptions_survive_reload(hass: HomeAssistant, notify_calls) -
     """Expiration state persists across integration reloads."""
     set_all_off(hass)
     hass.states.async_set(TAG_ENTITY, "unknown", {"tag_id": TAG_ID})
-    entry = make_entry(**{
-        CONF_NFC_TAG: TAG_ENTITY,
-        CONF_NFC_DEVICES: {PHONE: DEVICE_ID},
-    })
+    entry = make_entry(
+        **{
+            CONF_NFC_TAG: TAG_ENTITY,
+            CONF_NFC_DEVICES: {PHONE: DEVICE_ID},
+        }
+    )
     await setup_entry(hass, entry)
     hass.bus.async_fire("tag_scanned", {"tag_id": TAG_ID, "device_id": DEVICE_ID})
     await settle(hass)

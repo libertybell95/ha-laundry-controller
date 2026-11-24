@@ -104,7 +104,10 @@ class LaundryController:
         self.reminders_enabled = True
         self.tts_enabled = True
         self.notifier = Notifier(
-            hass, entry.entry_id, entry.title, self.options[CONF_RECIPIENTS],
+            hass,
+            entry.entry_id,
+            entry.title,
+            self.options[CONF_RECIPIENTS],
             nfc_tag=self.options.get(CONF_NFC_TAG),
             nfc_devices=self.options.get(CONF_NFC_DEVICES, {}),
         )
@@ -225,9 +228,8 @@ class LaundryController:
     def _handle_tag_scan(self, event: Event) -> None:
         """Subscribe the scanning Companion App device to this controller."""
         tag_entity = self.hass.states.get(self.options[CONF_NFC_TAG])
-        if (
-            tag_entity is None
-            or event.data.get("tag_id") != tag_entity.attributes.get("tag_id")
+        if tag_entity is None or event.data.get("tag_id") != tag_entity.attributes.get(
+            "tag_id"
         ):
             return
         device_id = event.data.get("device_id")

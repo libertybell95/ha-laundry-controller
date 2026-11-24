@@ -169,7 +169,8 @@ class Notifier:
             return list(self.recipients)
         now = dt_util.utcnow()
         return [
-            service for service in self.recipients
+            service
+            for service in self.recipients
             if (device := self.nfc_devices.get(service)) is not None
             and (expires := self.subscriptions.get(device)) is not None
             and expires > now
@@ -179,13 +180,16 @@ class Notifier:
         """Confirm a scan on the matching registered mobile-app device."""
         for service in self.recipients:
             if self.nfc_devices.get(service) == device_id:
-                await self._async_call(service, {
-                    "title": "Laundry alerts enabled",
-                    "message": (
-                        f"Laundry alerts enabled for {hours} hours. "
-                        "Scan again to extend."
-                    ),
-                })
+                await self._async_call(
+                    service,
+                    {
+                        "title": "Laundry alerts enabled",
+                        "message": (
+                            f"Laundry alerts enabled for {hours} hours. "
+                            "Scan again to extend."
+                        ),
+                    },
+                )
                 return
 
     async def async_send(self, msg: PhoneMessage) -> None:
