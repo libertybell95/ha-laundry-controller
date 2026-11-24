@@ -32,6 +32,9 @@ from .const import (
     CONF_NOTIFY_WASHER_WHILE_DRYER_RUNNING,
     CONF_OVERDUE_AFTER,
     CONF_RECIPIENTS,
+    CONF_NFC_TAG,
+    CONF_NFC_DURATION,
+    CONF_NFC_DEVICES,
     CONF_RECONNECT_GRACE,
     CONF_REMINDER_END,
     CONF_REMINDER_INTERVAL,
@@ -101,7 +104,9 @@ class LaundryController:
         self.reminders_enabled = True
         self.tts_enabled = True
         self.notifier = Notifier(
-            hass, entry.entry_id, entry.title, self.options[CONF_RECIPIENTS]
+            hass, entry.entry_id, entry.title, self.options[CONF_RECIPIENTS],
+            nfc_tag=self.options.get(CONF_NFC_TAG),
+            nfc_devices=self.options.get(CONF_NFC_DEVICES, {}),
         )
         self.announcer = Announcer(hass, entry.entry_id, entry.title, self.options)
         self.next_reminder: datetime | None = None
@@ -127,6 +132,13 @@ class LaundryController:
             self.machine.load(stored.get("machine", {}))
             self.reminders_enabled = bool(stored.get("reminders_enabled", True))
             self.tts_enabled = bool(stored.get("tts_enabled", True))
+            for device_id, expires_at in stored.get("nfc_subscriptions", {}).items():
+                try:
+                    expires = datetime.fromisoformat(expires_at)
+                except (TypeError, ValueError):
+                    continue
+                if expires.tzinfo is not None and expires > dt_util.utcnow():
+                    self.notifier.subscriptions[device_id] = expires
         self._snapshot = self._data()
 
         self._unsubs.append(
@@ -137,6 +149,10 @@ class LaundryController:
         self._unsubs.append(
             self.hass.bus.async_listen(MOBILE_APP_ACTION_EVENT, self._handle_action)
         )
+        if self.options.get(CONF_NFC_TAG):
+            self._unsubs.append(
+                self.hass.bus.async_listen("tag_scanned", self._handle_tag_scan)
+            )
 
         # Reconcile restored state with current readings. Readings start
         # untrusted; one that has already been stable for the grace period
@@ -204,6 +220,26 @@ class LaundryController:
             self.hang_dry()
         else:
             self.mark_done("notification")
+
+    @callback
+    def _handle_tag_scan(self, event: Event) -> None:
+        """Subscribe the scanning Companion App device to this controller."""
+        tag_entity = self.hass.states.get(self.options[CONF_NFC_TAG])
+        if tag_entity is None or event.data.get("tag_id") != tag_entity.attributes.get("tag_id"):
+            return
+        device_id = event.data.get("device_id")
+        if not isinstance(device_id, str) or not device_id:
+            return
+        permitted = {
+            self.notifier.nfc_devices.get(service)
+            for service in self.notifier.recipients
+        }
+        if device_id not in permitted:
+            return
+        hours = self.options[CONF_NFC_DURATION]
+        self.notifier.subscriptions[device_id] = dt_util.utcnow() + timedelta(hours=hours)
+        self._process([])
+        self._background(self.notifier.async_confirm(device_id, hours), "nfc_confirm")
 
     # ------------------------------------------------------------ public API
 
@@ -309,6 +345,11 @@ class LaundryController:
             "machine": self.machine.as_dict(),
             "reminders_enabled": self.reminders_enabled,
             "tts_enabled": self.tts_enabled,
+            "nfc_subscriptions": {
+                device: expiry.isoformat()
+                for device, expiry in self.notifier.subscriptions.items()
+                if expiry > dt_util.utcnow()
+            },
         }
 
     # ----------------------------------------------------------------- timers
