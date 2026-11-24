@@ -29,12 +29,12 @@ from .const import (
     ACTION_HANG_DRY,
     CONF_DRYER_DOOR,
     CONF_DRYER_RUNNING,
+    CONF_NFC_DEVICES,
+    CONF_NFC_DURATION,
+    CONF_NFC_TAG,
     CONF_NOTIFY_WASHER_WHILE_DRYER_RUNNING,
     CONF_OVERDUE_AFTER,
     CONF_RECIPIENTS,
-    CONF_NFC_TAG,
-    CONF_NFC_DURATION,
-    CONF_NFC_DEVICES,
     CONF_RECONNECT_GRACE,
     CONF_REMINDER_END,
     CONF_REMINDER_INTERVAL,
@@ -225,7 +225,10 @@ class LaundryController:
     def _handle_tag_scan(self, event: Event) -> None:
         """Subscribe the scanning Companion App device to this controller."""
         tag_entity = self.hass.states.get(self.options[CONF_NFC_TAG])
-        if tag_entity is None or event.data.get("tag_id") != tag_entity.attributes.get("tag_id"):
+        if (
+            tag_entity is None
+            or event.data.get("tag_id") != tag_entity.attributes.get("tag_id")
+        ):
             return
         device_id = event.data.get("device_id")
         if not isinstance(device_id, str) or not device_id:
@@ -237,7 +240,9 @@ class LaundryController:
         if device_id not in permitted:
             return
         hours = self.options[CONF_NFC_DURATION]
-        self.notifier.subscriptions[device_id] = dt_util.utcnow() + timedelta(hours=hours)
+        self.notifier.subscriptions[device_id] = dt_util.utcnow() + timedelta(
+            hours=hours
+        )
         self._process([])
         self._background(self.notifier.async_confirm(device_id, hours), "nfc_confirm")
 
