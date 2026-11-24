@@ -98,6 +98,31 @@ The controller remembers which appliance's "finished" notification occupies
 the *state* notification tag, so clearing one appliance doesn't remove a
 notification about the other.
 
+## NFC notification subscriptions
+
+NFC opt-in is an **optional** notification delivery policy configured in the
+Home Assistant options flow. An unset `nfc_tag` option preserves the original
+behavior: all configured recipients receive each alert. If the tag is set,
+the options flow requests a Companion App device for each selected mobile-app
+notify service. This mapping is saved in the instance's config entry, not in
+the source code. Non-mobile-app recipients cannot be used with NFC opt-in.
+
+The controller listens to Home Assistant's `tag_scanned` event when a tag is
+configured. The event must match both the configured tag entity's `tag_id`
+and one of the mapped device IDs. Valid scans set that device's UTC expiration
+to now + configured duration; repeat scans renew it. The confirmation goes to
+that device's matching notification service.
+
+`Notifier.eligible_recipients()` evaluates expirations immediately before
+delivery, so a queued reminder cannot bypass expiration. Expiration timestamps
+are restored after restart and ignored when in the past. The ordinary
+notification clear operation still targets every configured mobile-app service,
+including expired subscribers, to remove notifications sent earlier.
+
+Disabling the NFC option restores notify-all delivery without deleting
+subscription state. TTS and appliance state transitions are independent of
+subscription status.
+
 ## Persistence
 
 State lives in `.storage/laundry_controller.<entry_id>` (Home Assistant
