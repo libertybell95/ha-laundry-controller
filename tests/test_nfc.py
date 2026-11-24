@@ -21,16 +21,23 @@ TAG_ID = "example-nfc-tag"
 DEVICE_ID = "example-companion-device"
 
 
-async def test_no_tag_keeps_legacy_notify_all(hass: HomeAssistant, notify_calls) -> None:
+async def test_no_tag_keeps_legacy_notify_all(
+    hass: HomeAssistant, notify_calls
+) -> None:
     """An unset tag must never change recipients or require scanning."""
     set_all_off(hass)
     entry = make_entry()
     await setup_entry(hass, entry)
     await _washer_finishes(hass)
-    assert any(c.data.get("message", "").startswith("Washer finished") for c in notify_calls)
+    assert any(
+        c.data.get("message", "").startswith("Washer finished")
+        for c in notify_calls
+    )
 
 
-async def test_tag_requires_scan_and_expires(hass: HomeAssistant, notify_calls, freezer) -> None:
+async def test_tag_requires_scan_and_expires(
+    hass: HomeAssistant, notify_calls, freezer
+) -> None:
     """Only mapped phones with a live subscription receive laundry alerts."""
     set_all_off(hass)
     hass.states.async_set(TAG_ENTITY, "unknown", {"tag_id": TAG_ID})
@@ -67,7 +74,10 @@ async def test_tag_requires_scan_and_expires(hass: HomeAssistant, notify_calls, 
     assert notifier.eligible_recipients() == []
     before = len(notify_calls)
     await _washer_finishes(hass)
-    assert not any(c.data.get("message", "").startswith("Washer finished") for c in notify_calls[before:])
+    assert not any(
+        c.data.get("message", "").startswith("Washer finished")
+        for c in notify_calls[before:]
+    )
 
 
 async def test_subscriptions_survive_reload(hass: HomeAssistant, notify_calls) -> None:
